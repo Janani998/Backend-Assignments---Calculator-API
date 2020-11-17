@@ -39,6 +39,21 @@ const checkError = (errorType) => {
     return response;
   }
 };
+
+const checkLimitError = (result) => {
+  const response = {
+    status: "error",
+    message: ""
+  };
+  if (result > 1000000) {
+    response.message = "Overflow";
+    return response;
+  }
+  if (result < -1000000) {
+    response.message = "Underflow";
+    return response;
+  }
+};
 app.post("/add", (req, res) => {
   const validateObj = schema.validate(req.body, { convert: false });
   if (validateObj.error) {
@@ -48,10 +63,16 @@ app.post("/add", (req, res) => {
   }
   const num1 = req.body.num1;
   const num2 = req.body.num2;
+  const additionResult = num1 + num2;
+  if (additionResult > 1000000 || additionResult < -1000000) {
+    const limitErrorResponse = checkLimitError(additionResult);
+    res.send(limitErrorResponse);
+    return;
+  }
   const response = {
     status: "success",
     message: "the sum of given two numbers",
-    sum: num1 + num2
+    sum: additionResult
   };
   res.send(response);
 });
@@ -82,10 +103,16 @@ app.post("/multiply", (req, res) => {
   }
   const num1 = req.body.num1;
   const num2 = req.body.num2;
+  const product = num1 * num2;
+  if (product > 1000000 || product < -1000000) {
+    const limitErrorResponse = checkLimitError(product);
+    res.send(limitErrorResponse);
+    return;
+  }
   const response = {
     status: "success",
     message: "The product of given numbers",
-    result: num1 * num2
+    result: product
   };
   res.send(response);
 });
